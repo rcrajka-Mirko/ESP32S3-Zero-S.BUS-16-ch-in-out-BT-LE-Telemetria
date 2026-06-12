@@ -25,13 +25,14 @@ Adafruit_NeoPixel pixel(1, RGB_PIN, NEO_GRB + NEO_KHZ800);
 BLECharacteristic *pTxCharacteristic;
 bool deviceConnected = false;
 
-// Network Broadcast Address
+// Network Broadcast Address - Gen 2
 static const uint8_t BROADCAST_MAC[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; 
 
 bfs::SbusRx sbus_rx(&Serial1, SBUS_RX_PIN, -1, false);
 bfs::SbusTx sbus_tx(&Serial2, -1, SBUS_TX_PIN, false);
 HardwareSerial SportSerial(0); 
 
+// FIX: Definovane ako pole 16 kanalov
 struct __attribute__((packed)) sbus_packet_t {
     uint16_t kanaly[16]; 
 };
@@ -126,7 +127,7 @@ void loop() {
             delayMicroseconds(10);
         }
 
-        uint8_t buf[20];
+        uint8_t buf[20]; // Opravene pole na 20 bajtov
         int n = 0;
         while (SportSerial.available() > 0 && n < 20) {
             buf[n++] = SportSerial.read();
@@ -146,6 +147,7 @@ void loop() {
         sbus_tx.Write(); 
     }
 
+    // FIX: Kompletná a uzatvorená funkcia vypisu diagnostiky
     if (millis() - last_debug_ms > 1000) {
         last_debug_ms = millis();
         Serial.printf("[TELEMETRIA] Rychlost: %d bajtov/s %s\n", count_ble_bytes, is_failsafe_active ? "[FAILSAFE ACTIVE]" : "");
